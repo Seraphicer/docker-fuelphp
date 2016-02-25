@@ -1,0 +1,37 @@
+#!/bin/sh
+
+if [ $# -lt 1 ]; then
+    printf '\033[31;1mUsage:\033[m\n'
+    printf '\033[31;1m    $ ./setup <Project name> <Projects directory>\033[m\n'
+    printf '\033[31;1m    Projects directory is optional.\033[m\n'
+    exit 1
+fi
+
+workingDir=`pwd`/
+projectName=${1}
+projectsDir=${workingDir}/../
+if [ ${2} ]; then
+    projectsDir=${2}
+fi
+
+
+if [ ! $(which oil) ]; then
+    echo 'Installing oil...'
+    curl get.fuelphp.com/oil | sh
+fi
+echo 'oil is installed.'
+
+
+printf 'Creating %s...\n' ${projectName}
+cd ${projectsDir}
+
+oil create ${projectName}
+
+cp -r ${workingDir}resources/* ${projectName}/
+
+cd ${projectName}
+
+printf 'Creating containers...\n'
+docker-compose up -d
+
+echo 'Setup finished!'
